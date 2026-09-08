@@ -454,7 +454,7 @@ if Code.ensure_loaded?(Mint.HTTP) do
 
     defp maybe_attempt_reconnect(%{retry: 0} = state) do
       send(state.parent, {:elixir_grpc, :connection_down, self()})
-      {:noreply, state}
+      {:stop, :normal, state}
     end
 
     defp maybe_attempt_reconnect(%{retry_attempt: attempt} = state)
@@ -470,7 +470,7 @@ if Code.ensure_loaded?(Mint.HTTP) do
       )
 
       send(state.parent, {:elixir_grpc, :connection_down, self()})
-      {:noreply, state}
+      {:stop, :normal, state}
     end
 
     defp maybe_attempt_reconnect(state) do

@@ -404,7 +404,7 @@ defmodule GRPC.Client.Adapters.Mint.ConnectionProcessTest do
       # this is a mocked message to inform the connection is closed
       tcp_message = {:tcp_closed, socket}
 
-      assert {:noreply, new_state} = ConnectionProcess.handle_info(tcp_message, state)
+      assert {:stop, :normal, new_state} = ConnectionProcess.handle_info(tcp_message, state)
       assert new_state.conn.state == :closed
       assert_receive {:elixir_grpc, :connection_down, pid}, 500
       assert pid == self()
@@ -416,7 +416,7 @@ defmodule GRPC.Client.Adapters.Mint.ConnectionProcessTest do
       socket = state.conn.socket
       tcp_message = {:tcp_closed, socket}
 
-      assert {:noreply, new_state} = ConnectionProcess.handle_info(tcp_message, state)
+      assert {:stop, :normal, new_state} = ConnectionProcess.handle_info(tcp_message, state)
       assert new_state.conn.state == :closed
       assert new_state.retry == 0
       assert_receive {:elixir_grpc, :connection_down, _pid}, 500
@@ -458,7 +458,7 @@ defmodule GRPC.Client.Adapters.Mint.ConnectionProcessTest do
 
       exhausted_state = %{state | retry: 1, retry_attempt: 1}
       result = ConnectionProcess.handle_info(:reconnect, exhausted_state)
-      assert {:noreply, _} = result
+      assert {:stop, :normal, _} = result
       assert_receive {:elixir_grpc, :connection_down, _pid}, 500
 
       assert_receive {:telemetry, [:grpc, :client, :mint, :reconnect, :exhausted], %{}, metadata}
@@ -500,7 +500,7 @@ defmodule GRPC.Client.Adapters.Mint.ConnectionProcessTest do
       # this is a mocked message to inform the connection is closed
       tcp_message = {:tcp_closed, socket}
 
-      assert {:noreply, new_state} = ConnectionProcess.handle_info(tcp_message, state)
+      assert {:stop, :normal, new_state} = ConnectionProcess.handle_info(tcp_message, state)
       assert new_state.conn.state == :closed
       assert_receive {:elixir_grpc, :connection_down, pid}, 500
       response_state = :sys.get_state(response_pid)
@@ -528,7 +528,7 @@ defmodule GRPC.Client.Adapters.Mint.ConnectionProcessTest do
 
       {:noreply, state, {:continue, :process_request_stream_queue}} = response
 
-      assert {:noreply, new_state} = ConnectionProcess.handle_info(tcp_message, state)
+      assert {:stop, :normal, new_state} = ConnectionProcess.handle_info(tcp_message, state)
       assert new_state.conn.state == :closed
       assert_receive {:elixir_grpc, :connection_down, pid}, 500
       response_state = :sys.get_state(response_pid)
@@ -556,7 +556,7 @@ defmodule GRPC.Client.Adapters.Mint.ConnectionProcessTest do
       socket = state.conn.socket
       tcp_message = {:tcp_closed, socket}
 
-      assert {:noreply, new_state} = ConnectionProcess.handle_info(tcp_message, state)
+      assert {:stop, :normal, new_state} = ConnectionProcess.handle_info(tcp_message, state)
       assert new_state.conn.state == :closed
       assert_receive {:elixir_grpc, :connection_down, _pid}, 500
     end
