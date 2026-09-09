@@ -51,8 +51,7 @@ if Code.ensure_loaded?(Mint.HTTP) do
         {:ok, %{channel | adapter_payload: %{conn_pid: pid}}}
       end
     catch
-      :exit, reason ->
-        {:error, "Error while opening connection: #{inspect(reason)}"}
+      :exit, reason -> {:error, reason}
     end
 
     @impl true
@@ -187,10 +186,6 @@ if Code.ensure_loaded?(Mint.HTTP) do
       channel
       |> mint_scheme()
       |> ConnectionProcess.start_link(channel.host, channel.port, opts)
-      |> case do
-        {:ok, _} = ok -> ok
-        error -> {:error, "Error while opening connection: #{inspect(error)}"}
-      end
     end
 
     defp do_receive_data(%{payload: %{stream_response_pid: pid}}, request_type, opts)
